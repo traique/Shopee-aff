@@ -5,6 +5,7 @@ import { parseCode } from "@/lib/parser";
 import { searchShopee } from "@/lib/shopee";
 import { generateAffLink } from "@/lib/affiliate";
 import { getCache, setCache } from "@/lib/cache";
+import { Product } from "@/types/product";
 
 export async function GET(req: Request) {
   try {
@@ -12,17 +13,19 @@ export async function GET(req: Request) {
     const code = searchParams.get("code") || "";
 
     const cached = getCache(code);
-    if (cached) return Response.json(cached);
+    if (cached) {
+      return Response.json(cached as Product[]);
+    }
 
     const parsed = parseCode(code);
     if (!parsed) {
-      return Response.json({ error: "Invalid code" });
+      return Response.json({ error: "Invalid code" }, { status: 400 });
     }
 
-    const products = await searchShopee(parsed.keyword);
+    const products: Product[] = await searchShopee(parsed.keyword);
 
-    const result = products
-      .sort((a, b) => (b.sold || 0) - (a.sold || 0))
+    const result: Product[] = products
+      .sort((a, b) => b.sold - a.sold)
       .map((p) => ({
         ...p,
         affLink: generateAffLink(p),
@@ -33,6 +36,6 @@ export async function GET(req: Request) {
     return Response.json(result);
   } catch (err) {
     console.error(err);
-    return Response.json({ error: "Server error" });
+    return Response.json({ error: "Server error" }, { status: 500 });
   }
-}
+      }
