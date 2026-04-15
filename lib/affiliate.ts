@@ -1,6 +1,6 @@
-export function generateAffLink(product: any) {
-  const base = `https://shopee.vn/product/${product.shopid}/${product.id}`;
 
-  // TODO: thay bằng link aff thật của bạn
-  return `${base}?utm_source=aff&utm_medium=tool&utm_campaign=auto`;
+import { Product } from "@/types/product";
+
+export function generateAffLink(product: Product): string {
+  return `https://shopee.vn/product/${product.shopid}/${product.id}?utm_source=aff&utm_medium=tool`;
 }
