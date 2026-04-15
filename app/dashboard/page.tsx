@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { Product } from "@/types/product";
 
 export default function Page() {
-  const [code, setCode] = useState("");
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showList, setShowList] = useState(false);
+  const [code, setCode] = useState<string>("");
+  const [data, setData] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showList, setShowList] = useState<boolean>(false);
 
   const handleSearch = async () => {
     setLoading(true);
     setShowList(true);
 
     const res = await fetch(`/api/search?code=${code}`);
-    const json = await res.json();
+    const json: Product[] = await res.json();
 
     setData(json);
     setLoading(false);
@@ -42,7 +43,6 @@ export default function Page() {
         Tìm sản phẩm
       </button>
 
-      {/* Toggle */}
       {data.length > 0 && (
         <button
           onClick={() => setShowList(!showList)}
@@ -52,14 +52,12 @@ export default function Page() {
         </button>
       )}
 
-      {/* Loading */}
       {loading && <p className="mt-3">Đang tải...</p>}
 
-      {/* List */}
       {showList && (
         <div className="mt-4 space-y-3">
-          {data.map((item, i) => (
-            <div key={i} className="bg-white p-3 rounded shadow">
+          {data.map((item) => (
+            <div key={item.id} className="bg-white p-3 rounded shadow">
               <img
                 src={`https://cf.shopee.vn/file/${item.image}`}
                 className="w-full rounded"
@@ -83,7 +81,7 @@ export default function Page() {
                 </a>
 
                 <button
-                  onClick={() => copy(item.affLink)}
+                  onClick={() => copy(item.affLink || "")}
                   className="flex-1 bg-gray-200 p-2 rounded text-sm"
                 >
                   Copy
@@ -95,4 +93,4 @@ export default function Page() {
       )}
     </div>
   );
-}
+        }
