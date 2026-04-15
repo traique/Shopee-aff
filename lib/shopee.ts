@@ -1,5 +1,11 @@
 export async function searchShopee(keyword: string) {
   try {
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 5000);
+
     const url = `https://shopee.vn/api/v4/search/search_items?by=relevancy&keyword=${encodeURIComponent(
       keyword
     )}&limit=10`;
@@ -8,8 +14,11 @@ export async function searchShopee(keyword: string) {
       headers: {
         "user-agent": "Mozilla/5.0",
       },
+      signal: controller.signal,
       cache: "no-store",
     });
+
+    clearTimeout(timeout);
 
     const data = await res.json();
 
@@ -24,7 +33,7 @@ export async function searchShopee(keyword: string) {
       })) || []
     );
   } catch (e) {
-    console.error("Shopee error:", e);
+    console.error("Shopee fetch failed:", e);
     return [];
   }
-}
+        }
