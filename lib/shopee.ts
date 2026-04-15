@@ -20,20 +20,24 @@ export async function searchShopee(keyword: string) {
 
     clearTimeout(timeout);
 
+    if (!res.ok) {
+      throw new Error("Fetch failed");
+    }
+
     const data = await res.json();
 
     return (
       data?.items?.map((item: any) => ({
-        id: item.item_basic.itemid,
-        shopid: item.item_basic.shopid,
-        name: item.item_basic.name,
-        price: item.item_basic.price / 100000,
-        image: item.item_basic.image,
-        sold: item.item_basic.historical_sold,
+        id: item.item_basic?.itemid,
+        shopid: item.item_basic?.shopid,
+        name: item.item_basic?.name,
+        price: item.item_basic?.price / 100000,
+        image: item.item_basic?.image,
+        sold: item.item_basic?.historical_sold || 0,
       })) || []
     );
   } catch (e) {
     console.error("Shopee fetch failed:", e);
     return [];
   }
-        }
+}
