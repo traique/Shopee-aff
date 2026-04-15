@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["cf.shopee.vn"]
-  }
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cf.shopee.vn",
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig;
