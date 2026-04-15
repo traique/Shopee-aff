@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import { parseCode } from "@/lib/parser";
 import { searchShopee } from "@/lib/shopee";
@@ -34,4 +35,4 @@ export async function GET(req: Request) {
     console.error(err);
     return Response.json({ error: "Server error" });
   }
-  }
+}
