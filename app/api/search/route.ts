@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { parseCode } from "@/lib/parser";
 import { searchShopee } from "@/lib/shopee";
 import { generateAffLink } from "@/lib/affiliate";
@@ -8,9 +10,7 @@ export async function GET(req: Request) {
   const code = searchParams.get("code") || "";
 
   const cached = getCache(code);
-  if (cached) {
-    return Response.json(cached);
-  }
+  if (cached) return Response.json(cached);
 
   const parsed = parseCode(code);
   if (!parsed) {
