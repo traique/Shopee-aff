@@ -1,96 +1,40 @@
-"use client";
+const handleSearch = async () => {
+  setLoading(true);
 
-import { useState } from "react";
-import { Product } from "@/types/product";
+  try {
+    const keyword = code.replaceAll("-", " ");
 
-export default function Page() {
-  const [code, setCode] = useState<string>("");
-  const [data, setData] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showList, setShowList] = useState<boolean>(false);
+    const api = `https://shopee.vn/api/v4/search/search_items?by=relevancy&keyword=${encodeURIComponent(
+      keyword
+    )}&limit=10`;
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setShowList(true);
+    const res = await fetch(
+      "https://corsproxy.io/?" + encodeURIComponent(api)
+    );
 
-    const res = await fetch(`/api/search?code=${code}`);
-    const json: Product[] = await res.json();
+    const data = await res.json();
 
-    setData(json);
-    setLoading(false);
-  };
+    if (!data || !data.items) {
+      alert("Không lấy được dữ liệu");
+      setLoading(false);
+      return;
+    }
 
-  const copy = (link: string) => {
-    navigator.clipboard.writeText(link);
-    alert("Đã copy link!");
-  };
+    const items = data.items.map((item: any) => ({
+      id: item.item_basic.itemid,
+      shopid: item.item_basic.shopid,
+      name: item.item_basic.name,
+      price: item.item_basic.price / 100000,
+      image: item.item_basic.image,
+      sold: item.item_basic.historical_sold || 0,
+      affLink: `https://shopee.vn/product/${item.item_basic.shopid}/${item.item_basic.itemid}`,
+    }));
 
-  return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-lg font-bold mb-2">Shopee Aff Tool</h1>
+    setData(items);
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi fetch");
+  }
 
-      <input
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="VD: CET-QTD-VAG"
-        className="w-full border p-2 rounded"
-      />
-
-      <button
-        onClick={handleSearch}
-        className="w-full mt-2 bg-blue-500 text-white p-2 rounded"
-      >
-        Tìm sản phẩm
-      </button>
-
-      {data.length > 0 && (
-        <button
-          onClick={() => setShowList(!showList)}
-          className="mt-3 text-sm text-gray-600"
-        >
-          {showList ? "Ẩn danh sách" : "Hiện danh sách"}
-        </button>
-      )}
-
-      {loading && <p className="mt-3">Đang tải...</p>}
-
-      {showList && (
-        <div className="mt-4 space-y-3">
-          {data.map((item) => (
-            <div key={item.id} className="bg-white p-3 rounded shadow">
-              <img
-                src={`https://cf.shopee.vn/file/${item.image}`}
-                className="w-full rounded"
-              />
-
-              <p className="font-semibold mt-2">{item.name}</p>
-
-              <p className="text-red-500">{item.price}₫</p>
-
-              <p className="text-xs text-gray-500">
-                Đã bán: {item.sold}
-              </p>
-
-              <div className="flex gap-2 mt-2">
-                <a
-                  href={item.affLink}
-                  target="_blank"
-                  className="flex-1 text-center bg-green-500 text-white p-2 rounded text-sm"
-                >
-                  Mở link
-                </a>
-
-                <button
-                  onClick={() => copy(item.affLink || "")}
-                  className="flex-1 bg-gray-200 p-2 rounded text-sm"
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-        }
+  setLoading(false);
+};
